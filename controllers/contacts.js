@@ -2,12 +2,12 @@ const Contact = require("../db/models/contact");
 
 const { HttpError, ctrlWrapper } = require("../helpers");
 
-const listContactsCtrl = async (req, res) => {
-  const result = await Contact.find();
+const listContactsController = async (req, res) => {
+  const result = await Contact.find({});
   res.json(result);
 };
 
-const getContactByIdCtrl = async (req, res) => {
+const getContactByIdController = async (req, res) => {
   const { contactId } = req.params;
   const result = await Contact.findById(contactId);
   if (!result) {
@@ -16,12 +16,12 @@ const getContactByIdCtrl = async (req, res) => {
   res.json(result);
 };
 
-const addContactCtrl = async (req, res) => {
+const addContactController = async (req, res) => {
   const result = await Contact.create(req.body);
   res.status(201).json(result);
 };
 
-const removeContactCtrl = async (req, res) => {
+const removeContactController = async (req, res) => {
   const { contactId } = req.params;
   const result = await Contact.findByIdAndRemove(contactId);
 
@@ -33,7 +33,7 @@ const removeContactCtrl = async (req, res) => {
   });
 };
 
-const updateContactCtrl = async (req, res) => {
+const updateContactController = async (req, res) => {
   const { contactId } = req.params;
   const result = await Contact.findByIdAndUpdate(contactId, req.body, {
     new: true,
@@ -44,7 +44,7 @@ const updateContactCtrl = async (req, res) => {
   res.json(result);
 };
 
-const updateStatusContactCtrl = async (req, res) => {
+const updateStatusContactController = async (req, res) => {
   const { contactId } = req.params;
   const result = await Contact.findByIdAndUpdate(contactId, req.body, {
     new: true,
@@ -56,10 +56,10 @@ const updateStatusContactCtrl = async (req, res) => {
 };
 
 module.exports = {
-  listContactsCtrl: ctrlWrapper(listContactsCtrl),
-  getContactByIdCtrl: ctrlWrapper(getContactByIdCtrl),
-  addContactCtrl: ctrlWrapper(addContactCtrl),
-  removeContactCtrl: ctrlWrapper(removeContactCtrl),
-  updateContactCtrl: ctrlWrapper(updateContactCtrl),
-  updateStatusContactCtrl: ctrlWrapper(updateStatusContactCtrl),
+  listContactsController: ctrlWrapper(listContactsController),
+  getContactByIdController: ctrlWrapper(getContactByIdController),
+  addContactController: ctrlWrapper(addContactController),
+  removeContactController: ctrlWrapper(removeContactController),
+  updateContactController: ctrlWrapper(updateContactController),
+  updateStatusContactController: ctrlWrapper(updateStatusContactController),
 };
