@@ -1,15 +1,20 @@
-const Contact = require("../db/models/contact");
-
+const {
+  getListContacts,
+  getContactById,
+  addContact,
+  removeContact,
+  updateContact,
+} = require("../services/contactServices");
 const { HttpError, ctrlWrapper } = require("../helpers");
 
 const listContactsController = async (req, res) => {
-  const result = await Contact.find({});
+  const result = await getListContacts();
   res.json(result);
 };
 
 const getContactByIdController = async (req, res) => {
   const { contactId } = req.params;
-  const result = await Contact.findById(contactId);
+  const result = await getContactById(contactId);
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -17,13 +22,13 @@ const getContactByIdController = async (req, res) => {
 };
 
 const addContactController = async (req, res) => {
-  const result = await Contact.create(req.body);
+  const result = await addContact(req.body);
   res.status(201).json(result);
 };
 
 const removeContactController = async (req, res) => {
   const { contactId } = req.params;
-  const result = await Contact.findByIdAndRemove(contactId);
+  const result = await removeContact(contactId);
 
   if (!result) {
     throw HttpError(404, "Not found");
@@ -35,9 +40,15 @@ const removeContactController = async (req, res) => {
 
 const updateContactController = async (req, res) => {
   const { contactId } = req.params;
-  const result = await Contact.findByIdAndUpdate(contactId, req.body, {
-    new: true,
+  const { name, email, phone, favorite } = req.body;
+
+  const result = await updateContact(contactId, {
+    name,
+    email,
+    phone,
+    favorite,
   });
+
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -46,9 +57,8 @@ const updateContactController = async (req, res) => {
 
 const updateStatusContactController = async (req, res) => {
   const { contactId } = req.params;
-  const result = await Contact.findByIdAndUpdate(contactId, req.body, {
-    new: true,
-  });
+  const { favorite } = req.body;
+  const result = await updateContact(contactId, { favorite });
   if (!result) {
     throw HttpError(404, "Not found");
   }
