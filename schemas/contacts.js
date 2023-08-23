@@ -9,8 +9,16 @@ const addSchema = Joi.object({
     })
     .required(),
   phone: Joi.string().min(10).max(15).required(),
+  favorite: Joi.boolean(),
 }).messages({
   "any.required": "missing required {{#label}} field",
 });
 
-module.exports = { addSchema };
+const updateFavoriteSchema = Joi.object({
+  favorite: Joi.boolean().required(),
+});
+
+module.exports = {
+  addSchema,
+  updateFavoriteSchema,
+};
