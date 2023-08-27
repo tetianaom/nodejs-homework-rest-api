@@ -8,13 +8,15 @@ const {
 const { HttpError, ctrlWrapper } = require("../helpers");
 
 const listContactsController = async (req, res) => {
-  const result = await getListContacts();
+  const { _id: owner } = req.user;
+  const result = await getListContacts(owner);
   res.json(result);
 };
 
 const getContactByIdController = async (req, res) => {
   const { contactId } = req.params;
   const result = await getContactById(contactId);
+
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -22,7 +24,8 @@ const getContactByIdController = async (req, res) => {
 };
 
 const addContactController = async (req, res) => {
-  const result = await addContact(req.body);
+  const { _id: owner } = req.user;
+  const result = await addContact(req.body, owner);
   res.status(201).json(result);
 };
 
