@@ -1,11 +1,20 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
+const path = require("path");
+const fs = require("fs/promises");
+const jimp = require("jimp");
+
+require("dotenv").config();
 
 const { User } = require("../db/models/user");
 
 const { HttpError, ctrlWrapper } = require("../helpers");
+const { promise } = require("bcrypt/promises");
 
 const { SECRET_KEY } = process.env;
+
+const avatarsDir = path.join(__dirname, "../", "public", "avatars");
 
 const registerController = async (req, res) => {
   const { email, password, subscription } = req.body;
@@ -16,10 +25,12 @@ const registerController = async (req, res) => {
   }
 
   const hashCreatePassword = await bcrypt.hash(password, 10);
+  const avatarURL = gravatar.url(email);
 
   const newUser = await User.create({
     ...req.body,
     password: hashCreatePassword,
+    avatarURL,
   });
 
   res.status(201).json({
@@ -32,7 +43,6 @@ const registerController = async (req, res) => {
 
 const loginController = async (req, res) => {
   const { email, password } = req.body;
-
   const user = await User.findOne({ email });
 
   if (!user) {
@@ -73,9 +83,29 @@ const getCurrentController = async (req, res) => {
   res.json({ email, subscription });
 };
 
+const updateAvatarController = async (req, res) => {
+  const { _id } = req.user;
+  const { path: tmpUpload, originalname } = req.file;
+  const image = await jimp.read(tmpUpload);
+  await image.resize(250, 250);
+  await image.writeAsync(tmpUpload);
+  const filename = `${_id}_${originalname}`;
+  const resultUpload = path.join(avatarsDir, filename);
+
+  await fs.rename(tmpUpload, resultUpload);
+
+  const avatarURL = path.join("avatars", filename);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+
+  res.json({
+    avatarURL,
+  });
+};
+
 module.exports = {
   registerController: ctrlWrapper(registerController),
   loginController: ctrlWrapper(loginController),
   logoutController: ctrlWrapper(logoutController),
   getCurrentController: ctrlWrapper(getCurrentController),
+  updateAvatarController: ctrlWrapper(updateAvatarController),
 };
