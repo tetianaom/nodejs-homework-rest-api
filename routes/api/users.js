@@ -9,6 +9,8 @@ const {
   logoutController,
   getCurrentController,
   updateAvatarController,
+  verifyEmailController,
+  resendVerifyEmailController,
 } = require("../../controllers/users");
 
 const schemas = require("../../schemas/users");
@@ -21,12 +23,25 @@ router.post(
   registerController
 );
 
+router.get("/verify/:verificationToken", verifyEmailController);
+
+router.post(
+  "/verify",
+  validateBody(schemas.emailSchema),
+  resendVerifyEmailController
+);
+
 router.post("/login", validateBody(schemas.loginSchema), loginController);
 
 router.get("/current", authenticate, getCurrentController);
 
 router.post("/logout", authenticate, logoutController);
 
-router.patch("/avatars", authenticate, upload.single("avatar"), updateAvatarController);
+router.patch(
+  "/avatars",
+  authenticate,
+  upload.single("avatar"),
+  updateAvatarController
+);
 
 module.exports = router;
